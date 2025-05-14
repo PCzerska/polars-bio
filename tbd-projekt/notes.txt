@@ -1,0 +1,23 @@
+Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
+
+1) Pobranie i instalacja wymaganego oprogramowania, narzędzi i plików:
+    - fork repozytorium polars-bio
+    - instalacja rusta:
+        - instalacja gcc: sudo dnf install gcc
+        - instalacja pakietu do komunikacji rust <-> python: sudo dnf install python3-devel
+        - sudo dnf install gcc-c++ cmake make
+
+    - pobranie pakietów wymaganych przez polars bio:
+        - pip install -r requirements.txt
+    - 
+
+2)
+
+3)
+
+4)
+
+5)
+
+6)
+
