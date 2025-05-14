@@ -7,9 +7,13 @@ Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
         - instalacja pakietu do komunikacji rust <-> python: sudo dnf install python3-devel
         - sudo dnf install gcc-c++ cmake make
 
-    - pobranie pakietów wymaganych przez polars bio:
-        - pip install -r requirements.txt
-    - 
+    - budowanie polars-bio
+        - RUSTFLAGS="-Ctarget-cpu=native" maturin build --release -m Cargo.toml
+        - pip install <ścieżka do utworzonego pliku .whl>
+            np. pip install /home/budzyn/Projects/polars-bio/target/wheels/polars_bio-0.8.3-cp38-abi3-manylinux_2_39_x86_64.whl
+
+    - nie można wykonywać plików, które używają zbudowanego pakietu polars-bio z tego samego poziomu co jest folder polars-bio z plikami python:
+        - wtedy zamiast brac polars-bio z pip to python bierze go z kodu źródłowego
 
 2)
 
