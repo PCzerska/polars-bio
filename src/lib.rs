@@ -35,6 +35,61 @@ const LEFT_TABLE: &str = "s1";
 const RIGHT_TABLE: &str = "s2";
 const DEFAULT_COLUMN_NAMES: [&str; 3] = ["contig", "start", "end"];
 
+
+// TEST FUNCTION FOR tbd-projekt
+#[pyfunction]
+#[pyo3(signature = (a, b))]
+fn add_two_numbers(a: i32, b: i32) -> PyResult<i32> {
+    Ok(a + b)
+}
+
+
+// DOCELOWA FUNKCJA tbd-projekt
+// mod quality_control;
+// use quality_control::gc_content_udf;
+// use datafusion::execution::context::SessionContext;
+
+
+// pub fn register_udfs(ctx: &mut SessionContext) {
+//     ctx.register_udf(gc_content_udf());
+// }
+
+
+// #[pyfunction]
+// pub async fn gc_content_py(df: PyDataFrame) -> PyResult<PyDataFrame> {
+//     let mut ctx = SessionContext::new();
+//     register_udfs(&mut ctx);
+
+//     let arrow_df = df.to_arrow()?;
+//     let table = MemTable::try_new(arrow_df.schema(), vec![vec![arrow_df]])?;
+//     ctx.register_table("fastq", Arc::new(table))?;
+
+//     let df = ctx.sql("SELECT *, gc_content(sequence) as gc FROM fastq").await?;
+//     let batches = df.collect().await?;
+//     PyDataFrame::new(batches)
+// }
+// KONIEC ZMIAN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #[pyfunction]
 #[pyo3(signature = (py_ctx, df1, df2, range_options, limit=None))]
 fn range_operation_frame(
@@ -406,6 +461,10 @@ fn py_from_polars(
 #[pymodule]
 fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     pyo3_log::init();
+    // ADDED CUSTOM TEST FUNCTION tbd-projekt
+    m.add_function(wrap_pyfunction!(add_two_numbers, m)?)?;
+    // m.add_function(wrap_pyfunction!(gc_content_py, m)?)?;
+    // KONIEC
     m.add_function(wrap_pyfunction!(range_operation_frame, m)?)?;
     m.add_function(wrap_pyfunction!(range_operation_scan, m)?)?;
     m.add_function(wrap_pyfunction!(stream_range_operation_scan, m)?)?;

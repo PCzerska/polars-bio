@@ -16,7 +16,47 @@ Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
     - nie można wykonywać plików, które używają zbudowanego pakietu polars-bio z tego samego poziomu co jest folder polars-bio z plikami python:
         - wtedy zamiast brac polars-bio z pip to python bierze go z kodu źródłowego
 
-2)
+2) Dodawanie włąsnych funkcji:
+    - lib.rs:
+        - dodać definicje funkcji w lib.rs w formie np.:
+            #[pyfunction]
+            #[pyo3(signature = (a, b))]
+            fn add_two_numbers(a: i32, b: i32) -> PyResult<i32> {
+                Ok(a + b)
+            }
+        
+        - dodać wykorzystanie nowej funkcji w paczce rusta:
+            #[pymodule]
+            fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
+                pyo3_log::init();
+                // ADDED CUSTOM TEST FUNCTION tbd-projekt
+                m.add_function(wrap_pyfunction!(add_two_numbers, m)?)?;
+                ...
+        
+    - ./polars_bio/<package_name>.py:
+        - dodać opakowanie funkcji rustowej w pythonie
+            from __future__ import annotations
+            __all__ = ["add_two_numbers_py"]
+            from polars_bio.polars_bio import add_two_numbers
+
+            def add_two_numbers_py(a, b):
+                return add_two_numbers(a, b)
+        
+        - w pliku ./polars_bio/__init__.py dodac import nowej funkcji:
+            - 
+                # ADDED tbd-projekt test add_two_numbers_py
+                from .quality_control import add_two_numbers_py
+            - 
+                __all__ = [
+                    "add_two_numbers_py"
+                    ...
+        
+    - na końcu można wykorzystywac funkcję w włąsnych zastosowaniach:
+        - 
+            from polars_bio import read_fastq, add_two_numbers_py
+            result = add_two_numbers_py(10, 5)
+            print(result)
+
 
 3)
 

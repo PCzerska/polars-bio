@@ -16,12 +16,19 @@ from .io import (
 from .polars_ext import PolarsRangesOperations as LazyFrame
 from .range_op import FilterOp, count_overlaps, coverage, merge, nearest, overlap
 from .range_viz import visualize_intervals
+# ADDED tbd-projekt test add_two_numbers_py
+from .quality_control import add_two_numbers_py, control_quality
+
 
 POLARS_BIO_MAX_THREADS = "datafusion.execution.target_partitions"
 
 
 __version__ = "0.6.3"
 __all__ = [
+    # START tbd_projekt
+    "add_two_numbers_py",
+    "control_quality",
+    # KONIEC tbd_projekt
     "overlap",
     "nearest",
     "merge",

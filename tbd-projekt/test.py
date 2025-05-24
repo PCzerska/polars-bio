@@ -10,7 +10,15 @@
 
 
 
-from polars_bio import read_fastq
+from polars_bio import read_fastq, add_two_numbers_py
 
-df = read_fastq("example.fastq").collect()
-print(df["sequence"])
+result = add_two_numbers_py(10, 5)
+print(result)
+
+# df = read_fastq("example.fastq").collect()
+# print(f"TYPE: {type(df)}")
+# print(f"sequence type: {type(df["sequence"])}")
+# print(df["sequence"])
+
+
+
