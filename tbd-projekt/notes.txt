@@ -11,6 +11,7 @@ Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
         - RUSTFLAGS="-Ctarget-cpu=native" maturin build --release -m Cargo.toml
         - pip install <ścieżka do utworzonego pliku .whl>
             np. pip install /home/budzyn/Projects/polars-bio/target/wheels/polars_bio-0.8.3-cp38-abi3-manylinux_2_39_x86_64.whl
+        - pip install typing_extensions
 
     - nie można wykonywać plików, które używają zbudowanego pakietu polars-bio z tego samego poziomu co jest folder polars-bio z plikami python:
         - wtedy zamiast brac polars-bio z pip to python bierze go z kodu źródłowego

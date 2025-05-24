@@ -1,0 +1,27 @@
+bioframe==0.7.2
+certifi==2025.4.26
+charset-normalizer==3.4.2
+contourpy==1.3.2
+cycler==0.12.1
+datafusion==43.1.0
+fonttools==4.58.0
+idna==3.10
+kiwisolver==1.4.8
+matplotlib==3.10.3
+numpy==2.2.6
+packaging==25.0
+pandas==2.2.3
+pillow==11.2.1
+polars==1.17.1
+polars-bio @ file:///home/budzyn/Projects/polars-bio/target/wheels/polars_bio-0.8.3-cp38-abi3-manylinux_2_39_x86_64.whl#sha256=b18d9ca9f1a4fa50f8178d1c3c285e966771ec9d124254f96771508410926422
+pyarrow==18.1.0
+pyparsing==3.2.3
+python-dateutil==2.9.0.post0
+pytz==2025.2
+PyYAML==6.0.2
+requests==2.32.3
+six==1.17.0
+tqdm==4.67.1
+typing_extensions==4.13.2
+tzdata==2025.2
+urllib3==2.4.0
