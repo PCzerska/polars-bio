@@ -16,6 +16,11 @@ Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
     - nie można wykonywać plików, które używają zbudowanego pakietu polars-bio z tego samego poziomu co jest folder polars-bio z plikami python:
         - wtedy zamiast brac polars-bio z pip to python bierze go z kodu źródłowego
 
+    - przy przebudowaniu pliku .whl trzeba zrobić w wirtualnym środowisku:
+        - pip install --force-reinstall -r requirements.txt
+
+
+
 2) Dodawanie włąsnych funkcji:
     - lib.rs:
         - dodać definicje funkcji w lib.rs w formie np.:

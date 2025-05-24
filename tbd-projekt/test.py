@@ -12,13 +12,13 @@
 
 from polars_bio import read_fastq, add_two_numbers_py
 
-result = add_two_numbers_py(10, 5)
-print(result)
+# result = add_two_numbers_py(10, 5)
+# print(result)
 
-# df = read_fastq("example.fastq").collect()
-# print(f"TYPE: {type(df)}")
-# print(f"sequence type: {type(df["sequence"])}")
-# print(df["sequence"])
+df = read_fastq("example.fastq").collect()
+print(f"TYPE: {type(df)}")
+print(f"sequence type: {type(df["sequence"])}")
+print(df["sequence"])
 
 
 
