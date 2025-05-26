@@ -63,7 +63,64 @@ Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
             print(result)
 
 
-3)
+3)Pytania do Gambina:
+    -jak zarejestrować udfa
+    -jak podpiąć datafusion
+    -jak zrobić wielowątkowość
+
+
+
+    use datafusion::execution::context::SessionContext;
+
+    pub fn register_udfs(ctx: &mut SessionContext) {
+        let func = make_scalar_function(compute_nucleotide_percentages);
+        let return_type: ReturnTypeFunction = Arc::new(|_| Ok(Arc::new(datafusion::arrow::datatypes::DataType::Float64)));
+
+        let udf = create_udf(
+            "nucleotide_percentage_a", // NAZWA FUNKCJI W SQL
+            Signature::exact(vec![datafusion::arrow::datatypes::DataType::Utf8]),
+            &return_type,
+            Volatility::Immutable,
+            func,
+        );
+
+        ctx.register_udf(udf);
+}
+
+    SELECT sequence, nucleotide_percentage_a(sequence) as a_percent FROM my_table
+
+        #[pyclass]
+    struct PyBioSessionContext {
+        ctx: SessionContext,
+    }
+
+    #[pymethods]
+    impl PyBioSessionContext {
+        #[new]
+        fn new() -> Self {
+            let mut ctx = SessionContext::new();
+            register_udfs(&mut ctx);  // <-- tutaj rejestrujesz swoją funkcję
+            Self { ctx }
+        }
+
+        fn sql(&self, query: &str) -> PyResult<PyArrowType<ArrowArrayStreamReader>> {
+            let rt = Runtime::new().unwrap();
+            let df = rt.block_on(self.ctx.sql(query)).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{:?}", e)))?;
+            let results = rt.block_on(df.execute_stream()).unwrap();
+            let stream_reader = ArrowArrayStreamReader::try_new(Box::pin(results)).unwrap();
+            Ok(PyArrowType(stream_reader))
+        }
+    }
+
+    from polars_bio import PyBioSessionContext
+
+    ctx = PyBioSessionContext()
+    ctx.sql("""
+        SELECT sequence, nucleotide_percentage_a(sequence) AS a_percent
+        FROM your_table
+    """)
+
+
 
 4)
 

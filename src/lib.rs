@@ -19,6 +19,8 @@ use log::{debug, error, info};
 use polars_lazy::prelude::{LazyFrame, ScanArgsAnonymous};
 use polars_python::error::PyPolarsErr;
 use polars_python::lazyframe::PyLazyFrame;
+
+
 use pyo3::prelude::*;
 use tokio::runtime::Runtime;
 
@@ -36,6 +38,13 @@ const RIGHT_TABLE: &str = "s2";
 const DEFAULT_COLUMN_NAMES: [&str; 3] = ["contig", "start", "end"];
 
 
+//NASZE
+use polars_python::series::PySeries;
+use polars::prelude::*;
+use polars_python::prelude::*;
+use std::collections::HashMap;
+use pyo3::types::PyDict;
+
 // TEST FUNCTION FOR tbd-projekt
 #[pyfunction]
 #[pyo3(signature = (a, b))]
@@ -43,52 +52,30 @@ fn add_two_numbers(a: i32, b: i32) -> PyResult<i32> {
     Ok(a + b)
 }
 
+#[pyfunction]
+fn quality_control(sequences: Vec<String>) -> PyResult<String> {
+    let combined = sequences.join("");
+    let total = combined.len() as f64;
 
-// DOCELOWA FUNKCJA tbd-projekt
-// mod quality_control;
-// use quality_control::gc_content_udf;
-// use datafusion::execution::context::SessionContext;
+    let mut counts: HashMap<char, usize> = HashMap::new();
+    for base in combined.chars() {
+        let base_upper = base.to_ascii_uppercase();
+        if ['A', 'T', 'C', 'G'].contains(&base_upper) {
+            *counts.entry(base_upper).or_insert(0) += 1;
+        }
+    }
 
+    let bases = vec!['A', 'T', 'C', 'G'];
+    let mut output = String::new();
 
-// pub fn register_udfs(ctx: &mut SessionContext) {
-//     ctx.register_udf(gc_content_udf());
-// }
+    for base in bases {
+        let count = counts.get(&base).copied().unwrap_or(0) as f64;
+        let percentage = if total == 0.0 { 0.0 } else { (count / total) * 100.0 };
+        output.push_str(&format!("Baza: {}, Procent: {:.2}%\n", base, percentage));
+    }
 
-
-// #[pyfunction]
-// pub async fn gc_content_py(df: PyDataFrame) -> PyResult<PyDataFrame> {
-//     let mut ctx = SessionContext::new();
-//     register_udfs(&mut ctx);
-
-//     let arrow_df = df.to_arrow()?;
-//     let table = MemTable::try_new(arrow_df.schema(), vec![vec![arrow_df]])?;
-//     ctx.register_table("fastq", Arc::new(table))?;
-
-//     let df = ctx.sql("SELECT *, gc_content(sequence) as gc FROM fastq").await?;
-//     let batches = df.collect().await?;
-//     PyDataFrame::new(batches)
-// }
-// KONIEC ZMIAN
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    Ok(output)
+}
 
 #[pyfunction]
 #[pyo3(signature = (py_ctx, df1, df2, range_options, limit=None))]
@@ -463,6 +450,7 @@ fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     pyo3_log::init();
     // ADDED CUSTOM TEST FUNCTION tbd-projekt
     m.add_function(wrap_pyfunction!(add_two_numbers, m)?)?;
+    m.add_function(wrap_pyfunction!(quality_control, m)?)?;
     // m.add_function(wrap_pyfunction!(gc_content_py, m)?)?;
     // KONIEC
     m.add_function(wrap_pyfunction!(range_operation_frame, m)?)?;
