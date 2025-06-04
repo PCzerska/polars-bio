@@ -14,20 +14,20 @@ from polars_bio import read_fastq, add_two_numbers_py, quality_control_py
 import polars as pl
 from collections import Counter
 
-def nucleotide_percentages(sequence_series: pl.Series) -> pl.DataFrame:
-    # Połącz wszystkie sekwencje w jeden string
-    combined = "".join(sequence_series.to_list())
+# def nucleotide_percentages(sequence_series: pl.Series) -> pl.DataFrame:
+#     # Połącz wszystkie sekwencje w jeden string
+#     combined = "".join(sequence_series.to_list())
     
-    total = len(combined)
-    counts = Counter(combined)
+#     total = len(combined)
+#     counts = Counter(combined)
     
-    bases = ['A', 'T', 'C', 'G']
-    percentages = [(counts.get(base, 0) / total) * 100 for base in bases]
+#     bases = ['A', 'T', 'C', 'G']
+#     percentages = [(counts.get(base, 0) / total) * 100 for base in bases]
     
-    return pl.DataFrame({
-        "base": bases,
-        "percentage": percentages
-    })
+#     return pl.DataFrame({
+#         "base": bases,
+#         "percentage": percentages
+#     })
 
 
 # result = add_two_numbers_py(10, 5)
@@ -39,7 +39,7 @@ df = read_fastq("example.fastq").collect()
 #print(df["sequence"])
 #result = nucleotide_percentages(df["sequence"])
 vec = ["NCAATACAAAAGCAATATGGGAGAAGCTACCTACCATGCTTAAAAACGCCAATGAGCAGNGATTTGTCANCNNNNNNNNCNNNNNNNNTNNTANNANNCTC", "NGTCAAAGATAAGATCAAAAGGCACTGGCTTACCTGATTAAGAAATTGTGTAGTCCAACATCAAAATACNTNTNNNNNAGAGNCANGNCAAGCNNANNAAT"]
-result = quality_control_py(vec)
+#result = quality_control_py(vec)
 print(result)
 
 

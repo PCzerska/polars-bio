@@ -1,4 +1,5 @@
 from polars_bio.polars_bio import InputFormat, ReadOptions, VcfReadOptions
+from .base_sequence_content import base_sequence_content
 
 from .context import ctx, set_option
 from .io import (
@@ -17,7 +18,7 @@ from .polars_ext import PolarsRangesOperations as LazyFrame
 from .range_op import FilterOp, count_overlaps, coverage, merge, nearest, overlap
 from .range_viz import visualize_intervals
 # ADDED tbd-projekt test add_two_numbers_py
-from .quality_control import add_two_numbers_py, quality_control_py
+from .quality_control import add_two_numbers_py
 
 
 
@@ -28,7 +29,8 @@ __version__ = "0.6.3"
 __all__ = [
     # START tbd_projekt
     "add_two_numbers_py",
-    "quality_control_py",
+    "base_sequence_content",
+    #"quality_control_py",
     # KONIEC tbd_projekt
     "overlap",
     "nearest",

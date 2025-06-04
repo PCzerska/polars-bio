@@ -13,6 +13,22 @@ use crate::udtf::CountOverlapsProvider;
 use crate::utils::default_cols_to_string;
 use crate::DEFAULT_COLUMN_NAMES;
 
+use arrow::array::{Int64Array, Float64Array, StringArray};
+use arrow::datatypes::{Schema, Field, DataType};
+use arrow::record_batch::RecordBatch;
+use datafusion::prelude::SessionContext;
+use arrow_array::Array;
+
+
+
+use datafusion::arrow::datatypes::SchemaRef;
+use datafusion::datasource::MemTable;
+use datafusion::datasource::TableProvider;
+
+
+
+
+
 pub(crate) struct QueryParams {
     pub sign: String,
     pub suffixes: (String, String),
@@ -98,6 +114,33 @@ pub(crate) fn do_range_operation(
         _ => panic!("Unsupported operation"),
     }
 }
+
+
+use crate::base_sequence_content::compute_base_sequence_content;
+
+
+async fn do_base_sequence_content(
+    ctx: &ExonSession,
+    table: String,
+) -> polars::prelude::DataFrame {
+    let query = format!("SELECT quality_scores FROM {}", table);
+    let batches = ctx.sql(&query).await.unwrap().collect().await.unwrap();
+    let first_batch = &batches[0];
+    let col_idx = first_batch.schema()
+        .fields()
+        .iter()
+        .position(|f| f.name() == "quality_scores")
+        .expect("quality_scores column missing");
+
+    let array = first_batch.column(col_idx);
+    if !array.as_any().is::<arrow_array::StringArray>() {
+        panic!("quality_scores column is not a StringArray");
+    }
+    let df = compute_base_sequence_content(first_batch);
+    df
+}
+
+
 
 async fn do_nearest(
     ctx: &ExonSession,

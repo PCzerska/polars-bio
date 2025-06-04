@@ -6,6 +6,8 @@ mod scan;
 mod streaming;
 mod udtf;
 mod utils;
+pub mod base_sequence_content;
+
 
 use std::string::ToString;
 use std::sync::{Arc, Mutex};
@@ -52,30 +54,30 @@ fn add_two_numbers(a: i32, b: i32) -> PyResult<i32> {
     Ok(a + b)
 }
 
-#[pyfunction]
-fn quality_control(sequences: Vec<String>) -> PyResult<String> {
-    let combined = sequences.join("");
-    let total = combined.len() as f64;
+// #[pyfunction]
+// fn quality_control(sequences: Vec<String>) -> PyResult<String> {
+//     let combined = sequences.join("");
+//     let total = combined.len() as f64;
 
-    let mut counts: HashMap<char, usize> = HashMap::new();
-    for base in combined.chars() {
-        let base_upper = base.to_ascii_uppercase();
-        if ['A', 'T', 'C', 'G'].contains(&base_upper) {
-            *counts.entry(base_upper).or_insert(0) += 1;
-        }
-    }
+//     let mut counts: HashMap<char, usize> = HashMap::new();
+//     for base in combined.chars() {
+//         let base_upper = base.to_ascii_uppercase();
+//         if ['A', 'T', 'C', 'G'].contains(&base_upper) {
+//             *counts.entry(base_upper).or_insert(0) += 1;
+//         }
+//     }
 
-    let bases = vec!['A', 'T', 'C', 'G'];
-    let mut output = String::new();
+//     let bases = vec!['A', 'T', 'C', 'G'];
+//     let mut output = String::new();
 
-    for base in bases {
-        let count = counts.get(&base).copied().unwrap_or(0) as f64;
-        let percentage = if total == 0.0 { 0.0 } else { (count / total) * 100.0 };
-        output.push_str(&format!("Baza: {}, Procent: {:.2}%\n", base, percentage));
-    }
+//     for base in bases {
+//         let count = counts.get(&base).copied().unwrap_or(0) as f64;
+//         let percentage = if total == 0.0 { 0.0 } else { (count / total) * 100.0 };
+//         output.push_str(&format!("Baza: {}, Procent: {:.2}%\n", base, percentage));
+//     }
 
-    Ok(output)
-}
+//     Ok(output)
+// }
 
 #[pyfunction]
 #[pyo3(signature = (py_ctx, df1, df2, range_options, limit=None))]
@@ -450,8 +452,7 @@ fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     pyo3_log::init();
     // ADDED CUSTOM TEST FUNCTION tbd-projekt
     m.add_function(wrap_pyfunction!(add_two_numbers, m)?)?;
-    m.add_function(wrap_pyfunction!(quality_control, m)?)?;
-    // m.add_function(wrap_pyfunction!(gc_content_py, m)?)?;
+    //m.add_function(wrap_pyfunction!(quality_control, m)?)?;
     // KONIEC
     m.add_function(wrap_pyfunction!(range_operation_frame, m)?)?;
     m.add_function(wrap_pyfunction!(range_operation_scan, m)?)?;
