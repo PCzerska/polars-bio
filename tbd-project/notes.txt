@@ -1,0 +1,130 @@
+Proces implementowanego rozszerzenia w ramach Projektu 2 z przedmiotu TBD
+
+1) Pobranie i instalacja wymaganego oprogramowania, narzędzi i plików:
+    - fork repozytorium polars-bio
+    - instalacja rusta:
+        - instalacja gcc: sudo dnf install gcc
+        - instalacja pakietu do komunikacji rust <-> python: sudo dnf install python3-devel
+        - sudo dnf install gcc-c++ cmake make
+
+    - budowanie polars-bio
+        - RUSTFLAGS="-Ctarget-cpu=native" maturin build --release -m Cargo.toml
+        - pip install <ścieżka do utworzonego pliku .whl>
+            np. pip install /home/budzyn/Projects/polars-bio/target/wheels/polars_bio-0.8.3-cp38-abi3-manylinux_2_39_x86_64.whl
+        - pip install typing_extensions
+
+    - nie można wykonywać plików, które używają zbudowanego pakietu polars-bio z tego samego poziomu co jest folder polars-bio z plikami python:
+        - wtedy zamiast brac polars-bio z pip to python bierze go z kodu źródłowego
+
+    - przy przebudowaniu pliku .whl trzeba zrobić w wirtualnym środowisku:
+        - pip install --force-reinstall -r requirements.txt
+
+
+
+2) Dodawanie włąsnych funkcji:
+    - lib.rs:
+        - dodać definicje funkcji w lib.rs w formie np.:
+            #[pyfunction]
+            #[pyo3(signature = (a, b))]
+            fn add_two_numbers(a: i32, b: i32) -> PyResult<i32> {
+                Ok(a + b)
+            }
+        
+        - dodać wykorzystanie nowej funkcji w paczce rusta:
+            #[pymodule]
+            fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
+                pyo3_log::init();
+                // ADDED CUSTOM TEST FUNCTION tbd-projekt
+                m.add_function(wrap_pyfunction!(add_two_numbers, m)?)?;
+                ...
+        
+    - ./polars_bio/<package_name>.py:
+        - dodać opakowanie funkcji rustowej w pythonie
+            from __future__ import annotations
+            __all__ = ["add_two_numbers_py"]
+            from polars_bio.polars_bio import add_two_numbers
+
+            def add_two_numbers_py(a, b):
+                return add_two_numbers(a, b)
+        
+        - w pliku ./polars_bio/__init__.py dodac import nowej funkcji:
+            - 
+                # ADDED tbd-projekt test add_two_numbers_py
+                from .quality_control import add_two_numbers_py
+            - 
+                __all__ = [
+                    "add_two_numbers_py"
+                    ...
+        
+    - na końcu można wykorzystywac funkcję w włąsnych zastosowaniach:
+        - 
+            from polars_bio import read_fastq, add_two_numbers_py
+            result = add_two_numbers_py(10, 5)
+            print(result)
+
+
+3)Pytania do Gambina:
+    -jak zarejestrować udfa
+    -jak podpiąć datafusion
+    -jak zrobić wielowątkowość
+
+
+
+    use datafusion::execution::context::SessionContext;
+
+    pub fn register_udfs(ctx: &mut SessionContext) {
+        let func = make_scalar_function(compute_nucleotide_percentages);
+        let return_type: ReturnTypeFunction = Arc::new(|_| Ok(Arc::new(datafusion::arrow::datatypes::DataType::Float64)));
+
+        let udf = create_udf(
+            "nucleotide_percentage_a", // NAZWA FUNKCJI W SQL
+            Signature::exact(vec![datafusion::arrow::datatypes::DataType::Utf8]),
+            &return_type,
+            Volatility::Immutable,
+            func,
+        );
+
+        ctx.register_udf(udf);
+}
+
+    SELECT sequence, nucleotide_percentage_a(sequence) as a_percent FROM my_table
+
+        #[pyclass]
+    struct PyBioSessionContext {
+        ctx: SessionContext,
+    }
+
+    #[pymethods]
+    impl PyBioSessionContext {
+        #[new]
+        fn new() -> Self {
+            let mut ctx = SessionContext::new();
+            register_udfs(&mut ctx);  // <-- tutaj rejestrujesz swoją funkcję
+            Self { ctx }
+        }
+
+        fn sql(&self, query: &str) -> PyResult<PyArrowType<ArrowArrayStreamReader>> {
+            let rt = Runtime::new().unwrap();
+            let df = rt.block_on(self.ctx.sql(query)).map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{:?}", e)))?;
+            let results = rt.block_on(df.execute_stream()).unwrap();
+            let stream_reader = ArrowArrayStreamReader::try_new(Box::pin(results)).unwrap();
+            Ok(PyArrowType(stream_reader))
+        }
+    }
+
+    from polars_bio import PyBioSessionContext
+
+    ctx = PyBioSessionContext()
+    ctx.sql("""
+        SELECT sequence, nucleotide_percentage_a(sequence) AS a_percent
+        FROM your_table
+    """)
+
+
+
+4)
+
+5)
+
+6)
+
