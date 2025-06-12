@@ -7,6 +7,11 @@ mod streaming;
 mod udtf;
 mod utils;
 
+//CHANGED
+pub mod base_sequence_content;
+// END
+
+
 use std::string::ToString;
 use std::sync::{Arc, Mutex};
 

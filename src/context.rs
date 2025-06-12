@@ -8,6 +8,10 @@ use log::debug;
 use pyo3::{pyclass, pymethods, PyResult};
 use sequila_core::session_context::SequilaConfig;
 
+// CHANGE
+use crate::base_sequence_content::create_base_content_udaf;
+// END
+
 #[pyclass(name = "BioSessionContext")]
 // #[derive(Clone)]
 pub struct PyBioSessionContext {
@@ -24,6 +28,13 @@ impl PyBioSessionContext {
     #[new]
     pub fn new(seed: String, catalog_dir: String) -> PyResult<Self> {
         let ctx = create_context().unwrap();
+
+        // CHANGE
+        // adding custom udf
+        ctx.session.register_udaf(create_base_content_udaf()); 
+        log::info!("kmer_count UDAF registered");
+        // END
+
         let session_config: HashMap<String, String> = HashMap::new();
 
         Ok(PyBioSessionContext {
