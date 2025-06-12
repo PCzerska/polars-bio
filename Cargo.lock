@@ -5402,6 +5402,7 @@ version = "0.8.3"
 dependencies = [
  "arrow",
  "arrow-array",
+ "arrow-buffer",
  "arrow-schema",
  "async-stream",
  "async-trait",
