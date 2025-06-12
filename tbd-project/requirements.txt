@@ -13,7 +13,7 @@ packaging==25.0
 pandas==2.2.3
 pillow==11.2.1
 polars==1.17.1
-polars-bio @ file:///home/budzyn/Projects/final-polars-bio/polars-bio/target/wheels/polars_bio-0.8.3-cp38-abi3-manylinux_2_39_x86_64.whl#sha256=68c8c888bd03a009399ddcf0caefba63b31aae28dc18a4e8a25bf2fadc96fbca
+polars-bio @ file:///home/budzyn/Projects/final-polars-bio/polars-bio/target/wheels/polars_bio-0.8.3-cp38-abi3-manylinux_2_39_x86_64.whl#sha256=caf7c11f0118335f083f13ee87cb954dd7d40c66558594fc65352f5b39640dfd
 pyarrow==18.1.0
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
