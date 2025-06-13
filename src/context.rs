@@ -10,6 +10,7 @@ use sequila_core::session_context::SequilaConfig;
 
 // CHANGE
 use crate::base_sequence_content::create_base_content_udaf;
+use crate::multithreaded_udf::create_multithreaded_udf;
 // END
 
 #[pyclass(name = "BioSessionContext")]
@@ -32,6 +33,7 @@ impl PyBioSessionContext {
         // CHANGE
         // adding custom udf
         ctx.session.register_udaf(create_base_content_udaf()); 
+        ctx.session.register_udaf(create_multithreaded_udf());
         log::info!("kmer_count UDAF registered");
         // END
 
@@ -83,6 +85,7 @@ fn create_context() -> exon::Result<ExonSession> {
     let tuning_options = vec![
         ("datafusion.optimizer.repartition_joins", "false"),
         ("datafusion.execution.coalesce_batches", "false"),
+        ("datafusion.execution.target_partitions", "6"),
     ];
 
     for o in tuning_options {

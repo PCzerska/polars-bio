@@ -9,6 +9,7 @@ mod utils;
 
 //CHANGED
 pub mod base_sequence_content;
+pub mod multithreaded_udf;
 // END
 
 
