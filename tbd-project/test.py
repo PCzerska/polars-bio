@@ -6,6 +6,7 @@ import time
 import matplotlib.pyplot as plt
 
 
+# TODO move this function to python polars_bio
 def display_graph(df):
     plt.figure(figsize=(12, 6))
     for base in ["A", "C", "G", "T", "N"]:
@@ -22,13 +23,15 @@ def display_graph(df):
 
 if __name__ == "__main__":
     file_name = "example3"
-    
     read_fastq(file_name + ".fastq")
 
 
     start = time.time()
+    
+    pb.ctx.set_option("datafusion.execution.target_partitions", "2")
     df = pb.sql(f"SELECT base_content_multithreaded(sequence) AS result FROM {file_name}").collect()
-
+    # df = pb.sql(f"SELECT base_content(sequence) AS result FROM {file_name}").collect()
+    
     end = time.time()
     print(f"EXECUTION TIME: {end - start}")
 

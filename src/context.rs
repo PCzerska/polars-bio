@@ -85,7 +85,6 @@ fn create_context() -> exon::Result<ExonSession> {
     let tuning_options = vec![
         ("datafusion.optimizer.repartition_joins", "false"),
         ("datafusion.execution.coalesce_batches", "false"),
-        ("datafusion.execution.target_partitions", "6"),
     ];
 
     for o in tuning_options {

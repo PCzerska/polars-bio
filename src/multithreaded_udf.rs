@@ -51,7 +51,20 @@ pub fn create_multithreaded_udf() -> AggregateUDF {
         )))),
         Volatility::Immutable,
         Arc::new(accumulator_creator),
-        Arc::new(vec![]),
+        Arc::new(vec![
+            DataType::List(Arc::new(Field::new(
+                "item",
+                DataType::Struct(Fields::from(vec![
+                    Field::new("position", DataType::Int64, false),
+                    Field::new("A", DataType::Int64, false),
+                    Field::new("C", DataType::Int64, false),
+                    Field::new("G", DataType::Int64, false),
+                    Field::new("T", DataType::Int64, false),
+                    Field::new("N", DataType::Int64, false),
+                ])),
+                false,
+            )))
+        ]),
     )
 }
 
@@ -121,29 +134,29 @@ impl Accumulator for BaseContentMultiAccumulator {
         if states.is_empty() {
             return Ok(());
         }
-    
+
         let list_array = states[0]
             .as_any()
             .downcast_ref::<ListArray>()
             .ok_or_else(|| DataFusionError::Execution("Expected ListArray in merge_batch".into()))?;
-    
+
         let struct_array = list_array.values()
             .as_any()
             .downcast_ref::<StructArray>()
             .ok_or_else(|| DataFusionError::Execution("Expected StructArray inside ListArray".into()))?;
-    
+
         let pos_array = struct_array.column(0)
             .as_any()
             .downcast_ref::<arrow_array::Int64Array>()
             .ok_or_else(|| DataFusionError::Execution("Expected Int64Array for position".into()))?;
-    
+
         for row in 0..struct_array.len() {
             let pos = pos_array.value(row) as usize - 1;
-    
+
             if self.content.len() <= pos {
                 self.content.resize_with(pos + 1, HashMap::new);
             }
-    
+
             let map = self.content.get_mut(pos).unwrap();
             for (i, &base) in BASES.iter().enumerate() {
                 let array = struct_array.column(i + 1)
@@ -154,7 +167,7 @@ impl Accumulator for BaseContentMultiAccumulator {
                 *map.entry(base).or_insert(0) += value;
             }
         }
-    
+
         Ok(())
     }
 
@@ -165,7 +178,7 @@ impl Accumulator for BaseContentMultiAccumulator {
         let mut g_builder = Int64Builder::new();
         let mut t_builder = Int64Builder::new();
         let mut n_builder = Int64Builder::new();
-    
+
         for (i, map) in self.content.iter().enumerate() {
             position_builder.append_value((i + 1) as i64);
             a_builder.append_value(*map.get(&b'A').unwrap_or(&0));
@@ -174,7 +187,7 @@ impl Accumulator for BaseContentMultiAccumulator {
             t_builder.append_value(*map.get(&b'T').unwrap_or(&0));
             n_builder.append_value(*map.get(&b'N').unwrap_or(&0));
         }
-    
+
         let struct_array = StructArray::from(vec![
             (
                 Arc::new(Field::new("position", DataType::Int64, false)),
@@ -201,17 +214,17 @@ impl Accumulator for BaseContentMultiAccumulator {
                 Arc::new(n_builder.finish()) as ArrayRef,
             ),
         ]);
-    
+
         let list_array = ListArray::new(
             Arc::new(Field::new("item", struct_array.data_type().clone(), false)),
             OffsetBuffer::new(arrow_buffer::ScalarBuffer::from(vec![0i32, struct_array.len() as i32])),
             Arc::new(struct_array),
             None,
         );
-    
+
         Ok(vec![ScalarValue::List(Arc::new(list_array))])
     }
-    
+
 
 
     fn evaluate(&mut self) -> Result<ScalarValue> {
@@ -222,7 +235,7 @@ impl Accumulator for BaseContentMultiAccumulator {
         let mut g_builder = Int64Builder::new();
         let mut t_builder = Int64Builder::new();
         let mut n_builder = Int64Builder::new();
-    
+
         for (i, count_map) in self.content.iter().enumerate() {
             position_builder.append_value(i as i64 + 1);
             a_builder.append_value(*count_map.get(&b'A').unwrap_or(&0));
@@ -231,7 +244,7 @@ impl Accumulator for BaseContentMultiAccumulator {
             t_builder.append_value(*count_map.get(&b'T').unwrap_or(&0));
             n_builder.append_value(*count_map.get(&b'N').unwrap_or(&0));
         }
-    
+
         let struct_array = StructArray::from(vec![
             (
                 Arc::new(Field::new("position", DataType::Int64, false)),
@@ -267,10 +280,10 @@ impl Accumulator for BaseContentMultiAccumulator {
             None,
         );
 
-    
+
         Ok(ScalarValue::List(Arc::new(list_array)))
     }
-    
+
 
 
     fn size(&self) -> usize {
