@@ -3,9 +3,10 @@ import polars as pl
 import polars_bio as pb
 from polars_bio.io import read_fastq
 import pytest
+import time
 
 def test_base_content_matches_expected():
-    read_fastq("../polars-bio/tbd-project/example.fastq")
+    read_fastq("example.fastq")
     df = pb.sql("SELECT base_content(sequence) AS result FROM example").collect()
 
     exploded = df.explode("result").select([
@@ -20,7 +21,7 @@ def test_base_content_matches_expected():
     melted = exploded.melt(id_vars=["pos"], variable_name="base", value_name="count").sort(["pos", "base"])
     melted = melted.select(["base", "count", "pos"]).sort(["pos", "base"])
 
-    with open("../polars-bio/tests/data/fastqcrs_output/base_seq_content_expected.json", "r") as f:
+    with open("../tests/data/fastqcrs_output/base_seq_content_expected.json", "r") as f:
         expected = pl.DataFrame(json.load(f)["values"]).select(["base", "count", "pos"]).sort(["pos", "base"])
         expected = expected.with_columns([
             (pl.col("pos") + 1).alias("pos") 
@@ -116,3 +117,25 @@ def test_invalid_characters(tmp_path):
         assert row["G"] == expected_counts[pos]["G"]
         assert row["T"] == expected_counts[pos]["T"]
         assert row["N"] == expected_counts[pos]["N"]
+
+# takes too much time 
+# def test_execution_time_multithreading():
+#     file_name = "ERR194147"
+#     read_fastq("../polars-bio/ERR194147.fastq")
+
+#     pb.ctx.set_option("datafusion.execution.target_partitions", "4")
+#     start = time.time()
+#     df_multi = pb.sql(f"SELECT base_content_multithreaded(sequence) AS result FROM {file_name}").collect()
+#     multi_time = time.time() - start
+#     print(f"[Multithreaded] Execution time: {multi_time:.4f}s")
+
+#     pb.ctx.set_option("datafusion.execution.target_partitions", "1")
+#     start = time.time()
+#     df_single = pb.sql(f"SELECT base_content(sequence) AS result FROM {file_name}").collect()
+#     single_time = time.time() - start
+#     print(f"[Single-threaded] Execution time: {single_time:.4f}s")
+
+#     tolerance = 0.10  # 10% margines
+#     assert multi_time <= single_time * (1 + tolerance), (
+#         f"Multithreaded version slower: {multi_time:.4f}s vs {single_time:.4f}s"
+#     )
