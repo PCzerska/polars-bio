@@ -22,7 +22,7 @@ def display_graph(df):
     
 
 if __name__ == "__main__":
-    file_name = "example3"
+    file_name = "example"
     read_fastq(file_name + ".fastq")
 
 
