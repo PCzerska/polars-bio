@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import polars_bio as pb
 from polars_bio import read_fastq
 
-# file_path = "../polars-bio/ERR194147.fastq"
-# table_name = "ERR194147"
+file_path = "../ERR194147.fastq"
+table_name = "ERR194147"
 
-file_path = "../polars-bio/tbd-project/example.fastq"
-table_name = "example"
+# file_path = "../tbd-project/example.fastq"
+# table_name = "example"
 
 read_fastq(file_path)
 
@@ -34,9 +34,8 @@ plt.title("Multithreading Performance (base_content)")
 plt.tight_layout()
 plt.savefig("multithreading_example_benchmark.png")
 print("Saved plot to multithreading_benchmark.png")
-plt.show()
 
-# tolerance = 0.10  
-# assert multi_time <= single_time * (1 + tolerance), (
-#     f"Multithreaded version slower: {multi_time:.4f}s vs {single_time:.4f}s"
-# )
+tolerance = 0.10  
+assert multi_time <= single_time * (1 + tolerance), (
+    f"Multithreaded version slower: {multi_time:.4f}s vs {single_time:.4f}s"
+)

@@ -6,7 +6,7 @@ import pytest
 import time
 
 def test_base_content_matches_expected():
-    read_fastq("../polars-bio/tbd-project/example.fastq")
+    read_fastq("../tbd-project/example.fastq")
     df = pb.sql("SELECT base_content(sequence) AS result FROM example").collect()
 
     exploded = df.explode("result").select([
@@ -21,7 +21,7 @@ def test_base_content_matches_expected():
     melted = exploded.melt(id_vars=["pos"], variable_name="base", value_name="count").sort(["pos", "base"])
     melted = melted.select(["base", "count", "pos"]).sort(["pos", "base"])
 
-    with open("../polars-bio/tests/data/fastqcrs_output/base_seq_content_expected.json", "r") as f:
+    with open("../tests/data/fastqcrs_output/base_seq_content_expected.json", "r") as f:
         expected = pl.DataFrame(json.load(f)["values"]).select(["base", "count", "pos"]).sort(["pos", "base"])
         expected = expected.with_columns([
             (pl.col("pos") + 1).alias("pos") 
